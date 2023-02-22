@@ -24,7 +24,7 @@ namespace UserProfileManager.Context
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("<CONNECTION-STRING>");
+                optionsBuilder.UseSqlServer("CONNECTION-STRING");
             }
         }
 
