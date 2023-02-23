@@ -34,11 +34,11 @@ namespace UserProfileManager.Controllers
         }
 
         // POST api/<UserProfileController>
-        [HttpPost("Post")]
-        public void Post([FromBody] UsersProfile value)
+        [HttpPost]
+        public int Post([FromBody] UsersProfile value)
         {
             _context.UsersProfiles.Add(value);
-            _context.SaveChanges();
+            return _context.SaveChanges();
         }       
 
         // DELETE api/<UserProfileController>/5

@@ -1,5 +1,153 @@
 <!DOCTYPE html>
 <html>
+<style>
+    /* Set up a basic grid layout for the page */
+    .container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 1rem;
+    }
+
+    /* Style the form section */
+    .form-section {
+        grid-column: 1 / 2;
+        background-color: #fff;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Style the form input fields */
+    .form-field {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 1rem;
+    }
+
+    .form-field label {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-field input {
+        padding: 0.5rem;
+        font-size: 1rem;
+        border-radius: 0.25rem;
+        border: 1px solid #ccc;
+    }
+
+    .form-field input[type="file"] {
+        padding: 0.25rem;
+    }
+
+    .form-field input[type="button"] {
+        padding: 0.5rem;
+        font-size: 1rem;
+        border-radius: 0.25rem;
+        background-color: #007bff;
+        color: #fff;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+    .form-field input[type="button"]:hover {
+        background-color: #0062cc;
+    }
+
+    /* Style the table section */
+    .table-section {
+        grid-column: 2 / 3;
+        background-color: #fff;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Style the table */
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    th,
+    td {
+        padding: 0.5rem;
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+    }
+
+    th {
+        font-weight: bold;
+    }
+
+    img {
+        max-height: 150px;
+        max-width: 150px;
+    }
+
+    /* Style the buttons */
+    button {
+        padding: 0.5rem;
+        font-size: 1rem;
+        border-radius: 0.25rem;
+        background-color: #007bff;
+        color: #fff;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+    button:hover {
+        background-color: #0062cc;
+    }
+
+    /* The Modal (background) */
+    .modal {
+        display: none;
+        /* Hidden by default */
+        position: fixed;
+        /* Stay in place */
+        z-index: 1;
+        /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%;
+        /* Full width */
+        height: 100%;
+        /* Full height */
+        overflow: auto;
+        /* Enable scroll if needed */
+        background-color: rgb(0, 0, 0);
+        /* Fallback color */
+        background-color: rgba(0, 0, 0, 0.4);
+        /* Black w/ opacity */
+    }
+
+    /* Modal Content/Box */
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        /* 15% from the top and centered */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        /* Could be more or less, depending on screen size */
+    }
+
+    /* The Close Button */
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+</style>
 
 <head>
     <title>Single Page Example</title>
@@ -18,7 +166,7 @@
             $.get(API_URL, function (data) {
                 let tableRows = '';
                 data.forEach(function (row) {
-                    tableRows += '<tr><td>' + row.userName + '</td><td>' + row.email + '</td><td>' + row.dateOfBirth + '</td></tr>';
+                    tableRows += '<tr onclick="openModal(this)"><td>' + row.userName + '</td><td>' + row.email + '</td><td>' + row.dateOfBirth + '</td><td><img src="' + row.image + '"></td></tr>';
                 });
                 $('#table-body').html(tableRows);
             });
@@ -33,9 +181,7 @@
 
         async function submitForm() {
             const file = document.querySelector('#image').files[0];
-            console.log(await toBase64(file));
             let obj = {
-                id: 1,
                 image: await toBase64(file),
                 dateOfBirth: $('#dateOfBirth').val(),
                 userName: $('#userName').val(),
@@ -43,8 +189,7 @@
             }
 
             $.ajax({
-                headers: { "Accept": "application/json"},
-                url: API_URL + 'Post',
+                url: API_URL,
                 type: 'POST',
                 data: JSON.stringify(obj),
                 contentType: 'application/json',
@@ -58,39 +203,88 @@
             });
         };
 
+        function openModal(row) {
+            const cells = row.getElementsByTagName("td");
+            const userName = cells[0].innerText;
+            const email = cells[1].innerText;
+            const dateOfBirth = cells[2].innerText;
+            const image = cells[3].getElementsByTagName("img")[0].src;
+            $('#modal-username').html(userName);
+            $('#modal-email').html(email);
+            $('#modal-date').html(dateOfBirth);
+            $('#modal-image').attr('src', image);
+            const modal = document.getElementById("myModal");
+            const modalContent = modal.querySelector(".modal-content");
+
+
+            modal.style.display = "block";
+            const closeButton = modalContent.querySelector(".close");
+            closeButton.addEventListener("click", () => {
+                modal.style.display = "none";
+            });
+        }
+
     </script>
 </head>
 
 <body>
-    <h1>Single Page Example</h1>
+    <h1>User profile</h1>
     <button onclick="showForm()">Show Form</button>
     <button onclick="showList()">Show List</button>
-    <div id="form" style="display: none;">
-        <form>
-            <label for="userName">User Name:</label>
-            <input type="text" id="userName" name="userName" ><br>
-            <label for="email">Email:</label>
-            <input type="text" id="email" name="email" ><br>
-            <label for="image">Image:</label>
-            <input type="file" id="image" name="image" accept="image/*" ><br>
-            <label for="dateOfBirth">Date of Birth:</label>
-            <input type="date" id="dateOfBirth" name="dateOfBirth" ><br>
-            <input type="button" onclick="submitForm()" value="Submit">
+    <div id="form" style="display: none;" class="container">
+        <form class="form-section">
+            <div class="form-field">
+                <label for="userName">User Name:</label>
+                <input type="text" id="userName" name="userName"><br>
+            </div>
+            <div class="form-field">
+
+                <label for="email">Email:</label>
+                <input type="text" id="email" name="email"><br>
+            </div>
+            <div class="form-field">
+
+                <label for="image">Image:</label>
+                <input type="file" id="image" name="image" accept="image/*"><br>
+            </div>
+            <div class="form-field">
+
+                <label for="dateOfBirth">Date of Birth:</label>
+                <input type="date" id="dateOfBirth" name="dateOfBirth"><br>
+            </div>
+            <div class="form-field">
+                <input type="button" onclick="submitForm()" value="Submit">
+            </div>
         </form>
     </div>
-    <div id="list" style="display: none;">
+    <div id="list" style="display: none;" class="table-section">
         <table>
             <thead>
                 <tr>
                     <th>User Name</th>
                     <th>Email</th>
                     <th>Date of Birth</th>
+                    <th>Image</th>
                 </tr>
             </thead>
             <tbody id="table-body">
             </tbody>
         </table>
     </div>
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>User Details</h2>
+            <p><strong>Username:</strong> <span id="modal-username"></span></p>
+            <p><strong>Email:</strong> <span id="modal-email"></span></p>
+            <p><strong>Date of Birth:</strong> <span id="modal-date"></span></p>
+            <p><strong>Image:</strong></p>
+            <img id="modal-image" alt="User Image" style="max-width: 100%;">
+        </div>
+    </div>
+    <script>
+        showForm();
+    </script>
 </body>
 
 </html>
