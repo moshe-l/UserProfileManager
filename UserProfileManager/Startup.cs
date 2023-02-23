@@ -34,6 +34,15 @@ namespace UserProfileManager
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "UserProfileManager", Version = "v1" });
             });
             services.AddDbContext<UserContext>();
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowOrigin",
+                    builder => builder
+                         .WithOrigins("http://127.0.0.1:8080/")
+                        .AllowAnyHeader()
+                        .AllowCredentials()
+                        .AllowAnyMethod());
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -49,7 +58,12 @@ namespace UserProfileManager
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
+            app.UseCors(
+   options => options
+    .AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+  );
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

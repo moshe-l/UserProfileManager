@@ -34,7 +34,7 @@ namespace UserProfileManager.Controllers
         }
 
         // POST api/<UserProfileController>
-        [HttpPost]
+        [HttpPost("Post")]
         public void Post([FromBody] UsersProfile value)
         {
             _context.UsersProfiles.Add(value);

@@ -39,7 +39,7 @@ namespace UserProfileManager.Context
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.DateOfBirth)
-                    .HasColumnType("date")
+                     .HasMaxLength(100)
                     .HasColumnName("dateOfBirth");
 
                 entity.Property(e => e.Email)

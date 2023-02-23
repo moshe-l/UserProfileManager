@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Single Page Example</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        const API_URL = 'https://localhost:44354/api/UserProfile/';
+
+        function showForm() {
+            $('#list').hide();
+            $('#form').show();
+        }
+
+        function showList() {
+            $('#form').hide();
+            $('#list').show();
+            $.get(API_URL, function (data) {
+                let tableRows = '';
+                data.forEach(function (row) {
+                    tableRows += '<tr><td>' + row.userName + '</td><td>' + row.email + '</td><td>' + row.dateOfBirth + '</td></tr>';
+                });
+                $('#table-body').html(tableRows);
+            });
+        }
+
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+
+        async function submitForm() {
+            const file = document.querySelector('#image').files[0];
+            console.log(await toBase64(file));
+            let obj = {
+                id: 1,
+                image: await toBase64(file),
+                dateOfBirth: $('#dateOfBirth').val(),
+                userName: $('#userName').val(),
+                email: $('#email').val(),
+            }
+
+            $.ajax({
+                headers: { "Accept": "application/json"},
+                url: API_URL + 'Post',
+                type: 'POST',
+                data: JSON.stringify(obj),
+                contentType: 'application/json',
+                dataType: "json",
+                success: function (response) {
+                    alert('Form submitted successfully!');
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert('Error submitting form: ' + textStatus);
+                }
+            });
+        };
+
+    </script>
+</head>
+
+<body>
+    <h1>Single Page Example</h1>
+    <button onclick="showForm()">Show Form</button>
+    <button onclick="showList()">Show List</button>
+    <div id="form" style="display: none;">
+        <form>
+            <label for="userName">User Name:</label>
+            <input type="text" id="userName" name="userName" ><br>
+            <label for="email">Email:</label>
+            <input type="text" id="email" name="email" ><br>
+            <label for="image">Image:</label>
+            <input type="file" id="image" name="image" accept="image/*" ><br>
+            <label for="dateOfBirth">Date of Birth:</label>
+            <input type="date" id="dateOfBirth" name="dateOfBirth" ><br>
+            <input type="button" onclick="submitForm()" value="Submit">
+        </form>
+    </div>
+    <div id="list" style="display: none;">
+        <table>
+            <thead>
+                <tr>
+                    <th>User Name</th>
+                    <th>Email</th>
+                    <th>Date of Birth</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>
